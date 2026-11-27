@@ -1,0 +1,46 @@
+title: Possible Automated Contact-Form Spam (Single Request)
+id: 3c1b6a52-8d2e-4f6c-9a10-5e7d0b1c2a04
+name: contact_form_post
+status: experimental
+description: >
+  Matches POST requests to common contact or chat form paths. On its own this is normal traffic;
+  it becomes a signal through the correlation rule below. Based on the AkiraBot report
+  (SentinelLABS, 9 April 2025).
+references:
+  - https://www.sentinelone.com/de/labs/akirabot-ai-powered-bot-bypasses-captchas-spams-websites-at-scale/
+author: Hansal Savaliya
+date: 2026-11-25
+tags:
+  - attack.resource-development
+logsource:
+  category: webserver
+detection:
+  selection:
+    cs-method: 'POST'
+    cs-uri-stem|contains:
+      - '/contact'
+      - '/chat'
+      - '/submit'
+  condition: selection
+falsepositives:
+  - Real visitors using the form
+level: informational
+---
+title: Burst of Contact-Form POSTs From Many Sources With One Fingerprint
+id: 3c1b6a52-8d2e-4f6c-9a10-5e7d0b1c2a05
+status: experimental
+description: >
+  At least 20 form POSTs in 10 minutes that share the same user-agent hash. Spam tools rotate source
+  addresses but often keep identical browser attributes. Tune the threshold to your normal traffic.
+author: Hansal Savaliya
+date: 2026-11-25
+correlation:
+  type: event_count
+  rules:
+    - contact_form_post
+  group-by:
+    - cs-user-agent
+  timespan: 10m
+  condition:
+    gte: 20
+level: medium

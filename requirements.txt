@@ -1,0 +1,4 @@
+pytest>=8
+yara-python>=4.5
+pysigma>=0.11
+pyyaml>=6

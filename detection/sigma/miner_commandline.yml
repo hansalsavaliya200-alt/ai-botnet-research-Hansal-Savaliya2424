@@ -1,0 +1,35 @@
+title: Cryptominer Command Line With Pool URL or Donate Flag (Linux)
+id: 3c1b6a52-8d2e-4f6c-9a10-5e7d0b1c2a01
+status: experimental
+description: >
+  Detects process launches whose command line points a miner at a Stratum pool or uses
+  miner-specific options. Based on Akamai's description of miners and proxies (2025) and
+  Lumen's PoeLLM report (2026).
+references:
+  - https://www.akamai.com/blog/security-research/cryptominers-anatomy-shutting-down-mining-botnets
+  - https://thehackernews.com/2026/10/poellm-malware-infects-3400-servers-to.html
+author: Hansal Savaliya
+date: 2026-11-25
+tags:
+  - attack.impact
+  - attack.t1496
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection_pool:
+    CommandLine|contains:
+      - 'stratum+tcp://'
+      - 'stratum+ssl://'
+  selection_flags:
+    CommandLine|contains:
+      - '--donate-level'
+      - '--coin=monero'
+  selection_name:
+    Image|endswith:
+      - '/xmrig'
+      - '/xmrig-proxy'
+  condition: 1 of selection_*
+falsepositives:
+  - Authorised mining on systems that are meant to mine
+level: high

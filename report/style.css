@@ -1,0 +1,6 @@
+body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.4}
+h1{font-size:20pt}h2{font-size:15pt;border-bottom:1px solid #999;padding-bottom:2px;margin-top:20px;page-break-after:avoid}
+h3{font-size:12.5pt;margin-top:14px;page-break-after:avoid}h4{font-size:11pt}
+table{border-collapse:collapse;width:100%;font-size:9pt;margin:8px 0}th,td{border:1px solid #888;padding:3px 5px;vertical-align:top;text-align:left}
+th{background:#eee}code{font-size:9pt;background:#f3f3f3}pre{font-size:8pt;background:#f6f6f6;padding:6px;border:1px solid #ddd;white-space:pre-wrap}tr{page-break-inside:avoid}
+colgroup{display:none}table{table-layout:auto}

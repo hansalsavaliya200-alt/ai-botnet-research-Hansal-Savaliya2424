@@ -1,0 +1,1 @@
+FLAG fingerprint=ua_spamfp posts=45 distinct_ips=39 over=352s domains={'seo-example-0.invalid': 15, 'seo-example-1.invalid': 15, 'seo-example-2.invalid': 15}

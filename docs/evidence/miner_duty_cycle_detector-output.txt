@@ -1,0 +1,7 @@
+host      mean CPU  verdict
+app-01       98.1%  always_hot
+app-02       59.1%  duty_cycle (repeats about every 15 min)
+ci-01        18.5%  normal
+db-01        19.9%  normal
+web-01       20.1%  normal
+web-02       17.6%  normal

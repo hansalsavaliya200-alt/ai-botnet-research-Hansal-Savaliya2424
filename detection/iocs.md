@@ -1,0 +1,24 @@
+# Indicators of Compromise
+
+Defanged with `[.]`. Every row has a published source. **Do not treat low-confidence rows as proof.** Domains and repositories can be taken down or reused.
+
+| Type | Value | Topic | Source | Confidence | Note |
+|---|---|---|---|---|---|
+| domain | `akirateam[.]com` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | medium | Registered Jan 2022 per report timeline; SEO brand domain |
+| domain | `goservicewrap[.]com` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | medium | Registered Apr 2024 per report timeline |
+| domain | `77980.bodis[.]com` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | low | Infrastructure link named in report; Bodis is a shared parking service |
+| domain | `unj[.]digital` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | low | Infrastructure link named in report |
+| filename | `shopbotpyv2` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | low | Folder name in tool archives |
+| filename | `wixbot` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | low | Folder name in tool archives |
+| filename | `NextCaptchaBot-v6` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | low | Folder name in tool archives |
+| filename | `monitor_random.py` | 1 | SentinelLABS AkiraBot report (9 Apr 2025) | low | Monitoring script name; generic file name so low confidence |
+| sha256 | `8471257186db7db30d74816409fa09a09898ee099e7e0d1ad015546975e53a8f` | 2 | Rubrik Zero Labs (3 Mar 2026) | high | Python-based multi-vector worm sample as published |
+| url_path | `github[.]com/ejejejdfbbebe` | 2 | Lumen Black Lotus Labs via The Hacker News (7 Oct 2026) | medium | Repository used to host the C2 poem; first committed 13 Apr 2026; reported no longer accessible |
+| behaviour | `chattr +i on dropped files` | 2 | Rubrik Zero Labs (3 Mar 2026) | medium | Behavioural indicator |
+| behaviour | `stop of auditd or rsyslog then log truncation` | 2 | Rubrik Zero Labs (3 Mar 2026) | medium | Behavioural indicator |
+| behaviour | `outbound scanning of tcp/22 and tcp/6379` | 2 | Rubrik Zero Labs (3 Mar 2026) | medium | Behavioural indicator |
+| behaviour | `connections to Stratum mining pools or a mining proxy` | 2 | Akamai (24 Jun 2025); Lumen (7 Oct 2026) | medium | Behavioural indicator |
+| behaviour | `periodic or sustained high CPU on servers with no matching workload` | 2/3 | Akamai (24 Jun 2025) | medium | Behavioural indicator |
+| behaviour | `review burst from new accounts with templated wording` | 4 | Malwarebytes Labs (2 Nov 2026) | low | Warning signs listed by the source; not proof |
+
+Topics 3 and 4 have behavioural indicators only; there are no published technical IoCs for a controller or a review-fraud bot system.

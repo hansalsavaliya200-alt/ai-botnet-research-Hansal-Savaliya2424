@@ -1,0 +1,24 @@
+title: chattr Immutable Flag Set on a File (Linux)
+id: 3c1b6a52-8d2e-4f6c-9a10-5e7d0b1c2a03
+status: experimental
+description: >
+  Detects use of chattr +i, which makes a file immutable. Reported in the Rubrik analysis as a way the
+  botnet protects its files from deletion. Legitimate hardening also uses it.
+references:
+  - https://zerolabs.rubrik.com/blog/prompt-pwn-analyzing-ai-architected-botnet
+author: Hansal Savaliya
+date: 2026-11-25
+tags:
+  - attack.defense-evasion
+  - attack.t1222.002
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection:
+    Image|endswith: '/chattr'
+    CommandLine|contains: '+i'
+  condition: selection
+falsepositives:
+  - Administrators protecting configuration files
+level: medium

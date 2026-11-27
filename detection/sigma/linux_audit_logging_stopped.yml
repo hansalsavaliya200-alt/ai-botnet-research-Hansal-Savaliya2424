@@ -1,0 +1,32 @@
+title: Linux auditd or rsyslog Stopped From the Command Line
+id: 3c1b6a52-8d2e-4f6c-9a10-5e7d0b1c2a02
+status: experimental
+description: >
+  Detects commands that stop the audit or syslog service. The Rubrik Zero Labs analysis of an
+  AI-architected Linux botnet (March 2026) reports that the malware stops rsyslog and auditd.
+  Admins also do this, so correlate with other signals.
+references:
+  - https://zerolabs.rubrik.com/blog/prompt-pwn-analyzing-ai-architected-botnet
+author: Hansal Savaliya
+date: 2026-11-25
+tags:
+  - attack.defense-evasion
+  - attack.t1562.001
+logsource:
+  category: process_creation
+  product: linux
+detection:
+  selection_tool:
+    Image|endswith:
+      - '/systemctl'
+      - '/service'
+  selection_action:
+    CommandLine|contains: 'stop'
+  selection_target:
+    CommandLine|contains:
+      - 'auditd'
+      - 'rsyslog'
+  condition: selection_tool and selection_action and selection_target
+falsepositives:
+  - Planned maintenance or service restarts by administrators
+level: medium
