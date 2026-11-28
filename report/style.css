@@ -1,6 +1,397 @@
-body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.4}
-h1{font-size:20pt}h2{font-size:15pt;border-bottom:1px solid #999;padding-bottom:2px;margin-top:20px;page-break-after:avoid}
-h3{font-size:12.5pt;margin-top:14px;page-break-after:avoid}h4{font-size:11pt}
-table{border-collapse:collapse;width:100%;font-size:9pt;margin:8px 0}th,td{border:1px solid #888;padding:3px 5px;vertical-align:top;text-align:left}
-th{background:#eee}code{font-size:9pt;background:#f3f3f3}pre{font-size:8pt;background:#f6f6f6;padding:6px;border:1px solid #ddd;white-space:pre-wrap}tr{page-break-inside:avoid}
-colgroup{display:none}table{table-layout:auto}
+:root {
+  color-scheme: light;
+  --ink: #17243b;
+  --muted: #53647b;
+  --navy: #10233f;
+  --blue: #176b87;
+  --teal: #0e8a83;
+  --pale: #eef5f7;
+  --line: #d7e1e8;
+  --paper: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #e9eef3;
+  color: var(--ink);
+  font: 10.5pt/1.58 "Aptos", "Segoe UI", Arial, sans-serif;
+  scroll-behavior: smooth;
+}
+
+body {
+  max-width: 920px;
+  margin: 36px auto;
+  padding: 68px 76px;
+  background: var(--paper);
+  box-shadow: 0 12px 42px rgb(16 35 63 / 12%);
+}
+
+a {
+  color: var(--blue);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+}
+
+a:hover {
+  color: var(--teal);
+}
+
+header#title-block-header {
+  min-height: 920px;
+  margin: -68px -76px 42px;
+  padding: 170px 86px 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  border-top: 14px solid var(--teal);
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 92% 14%, rgb(36 131 157 / 12%), transparent 34%),
+    linear-gradient(145deg, #f3f8fa 0%, #fff 58%, #eef5f7 100%);
+  page-break-after: always;
+  break-after: page;
+}
+
+header#title-block-header::before {
+  content: "RESEARCH REPORT  /  MILESTONE 03";
+  display: inline-block;
+  margin-bottom: 26px;
+  color: var(--teal);
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.title {
+  max-width: 700px;
+  margin: 0;
+  color: var(--navy);
+  font-size: 36pt;
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -1.1px;
+}
+
+.subtitle {
+  max-width: 610px;
+  margin: 22px 0 44px;
+  color: var(--blue);
+  font-size: 17pt;
+  line-height: 1.35;
+}
+
+.author,
+.date,
+.institute {
+  margin: 5px 0;
+  color: var(--muted);
+  font-size: 11pt;
+}
+
+.author {
+  color: var(--ink);
+  font-size: 15pt;
+  font-weight: 650;
+}
+
+.date {
+  margin-top: 30px;
+  font-size: 10pt;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.author + .author {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 10pt;
+  font-weight: 400;
+}
+
+.abstract {
+  max-width: 650px;
+  margin-top: auto;
+  padding: 18px 22px;
+  border-left: 4px solid var(--teal);
+  background: rgb(255 255 255 / 84%);
+  color: var(--muted);
+  font-size: 9.5pt;
+  line-height: 1.5;
+}
+
+.abstract-title {
+  margin-bottom: 5px;
+  color: var(--teal);
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+
+#TOC {
+  margin: 28px 0 40px;
+  padding: 26px 30px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--teal);
+  border-radius: 6px;
+  background: #f7fafb;
+  page-break-after: always;
+  break-after: page;
+}
+
+#TOC::before {
+  content: "IN THIS REPORT";
+  display: block;
+  margin-bottom: 14px;
+  color: var(--teal);
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+#TOC ul {
+  margin: 0;
+  padding-left: 20px;
+  columns: 2;
+  column-gap: 38px;
+}
+
+#TOC li {
+  margin: 5px 0;
+  break-inside: avoid;
+}
+
+#TOC a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--navy);
+  font-family: "Aptos Display", "Segoe UI", Arial, sans-serif;
+  line-height: 1.25;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 {
+  margin: 0 0 18px;
+  font-size: 25pt;
+  letter-spacing: -0.5px;
+}
+
+h2 {
+  margin: 34px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--line);
+  font-size: 18pt;
+}
+
+h3 {
+  margin: 24px 0 10px;
+  color: var(--blue);
+  font-size: 13pt;
+}
+
+h4 {
+  margin: 18px 0 8px;
+  font-size: 11pt;
+}
+
+p {
+  margin: 9px 0 13px;
+  orphans: 3;
+  widows: 3;
+}
+
+strong {
+  color: var(--navy);
+}
+
+blockquote {
+  margin: 18px 0;
+  padding: 12px 18px;
+  border-left: 4px solid var(--teal);
+  background: var(--pale);
+  color: var(--navy);
+}
+
+table {
+  width: 100%;
+  margin: 18px 0 22px;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 9pt;
+  line-height: 1.45;
+}
+
+thead {
+  display: table-header-group;
+}
+
+th {
+  background: var(--navy);
+  color: white;
+  font-weight: 650;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+tbody tr:nth-child(even) {
+  background: #f3f7f9;
+}
+
+tr {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+code {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #eef2f6;
+  color: #173b58;
+  font: 0.88em "Cascadia Code", Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+pre {
+  margin: 16px 0;
+  padding: 16px 18px;
+  border: 1px solid #d6e0e8;
+  border-left: 4px solid var(--blue);
+  border-radius: 4px;
+  background: #f5f8fa;
+  color: #1b2b40;
+  font: 8.5pt/1.45 "Cascadia Code", Consolas, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+pre code {
+  padding: 0;
+  background: transparent;
+}
+
+ul,
+ol {
+  padding-left: 23px;
+}
+
+li {
+  margin: 4px 0;
+}
+
+hr {
+  height: 1px;
+  margin: 30px 0;
+  border: 0;
+  background: var(--line);
+}
+
+@media screen {
+  body {
+    min-height: 100vh;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 19mm 19mm 21mm;
+
+  @top-left {
+    content: "DEFENSIVE RESEARCH  /  TECHNICAL REPORT";
+    color: #53647b;
+    font: 7.5pt "Segoe UI", Arial, sans-serif;
+    letter-spacing: 0.7px;
+  }
+
+  @top-right {
+    content: "HANSAL SAVALIYA";
+    color: #53647b;
+    font: 7.5pt "Segoe UI", Arial, sans-serif;
+    letter-spacing: 0.7px;
+  }
+
+  @bottom-left {
+    content: "MILESTONE TASK 3  •  NOVEMBER 2026";
+    color: #53647b;
+    font: 7.5pt "Segoe UI", Arial, sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  @bottom-right {
+    content: "PAGE " counter(page);
+    color: #53647b;
+    font: 7.5pt "Segoe UI", Arial, sans-serif;
+    letter-spacing: 0.5px;
+  }
+}
+
+@page :first {
+  margin: 0;
+
+  @top-left {
+    content: none;
+  }
+
+  @top-right {
+    content: none;
+  }
+
+  @bottom-left {
+    content: none;
+  }
+
+  @bottom-right {
+    content: none;
+  }
+}
+
+@media print {
+  html {
+    background: white;
+    font-size: 10pt;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  header#title-block-header {
+    min-height: 297mm;
+    margin: 0;
+    padding: 40mm 28mm;
+  }
+
+  #TOC {
+    margin-top: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

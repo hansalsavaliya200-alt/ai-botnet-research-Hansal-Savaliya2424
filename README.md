@@ -1,78 +1,113 @@
-# AI-Assisted Botnet Research: Spam, Cryptojacking, Resource Allocation and Reputation Fraud
+# AI Botnet Threat Landscape
 
-**Author:** Hansal Savaliya, Intern ID 2424
-**Programme:** RedKross Research Foundation, Cybersecurity Malware Research Internship, Milestone Task 3
-**Video:** Record and publish the 3–5 minute walkthrough on YouTube (Unlisted), Loom, or Google Drive, then add the access link here.
-**Technical report:** [`report/technical-report.pdf`](report/technical-report.pdf)
-**Slides:** [`slides/ai-botnet-research-slides.pptx`](slides/ai-botnet-research-slides.pptx)
+### Technical research and defensive detection engineering
 
-This is **defensive research**. It contains no functional malware, no samples and no credentials. See [`docs/00-scope-and-ethics.md`](docs/00-scope-and-ethics.md).
+**Author:** Hansal Savaliya · **Intern ID:** 2424
 
-## My four assigned topics
+**Programme:** RedKross Research Foundation · Cybersecurity Malware Research Internship · Milestone Task 3
+**Status:** Research complete · **Test suite:** 13 passing
 
-| # | Topic | Evidence level | Analysis |
-|---|-------|----------------|----------|
-| 1 | AI Spam-Campaign Botnet | Evidenced (AkiraBot, SentinelLABS 2025) | [docs/01](docs/01-ai-spam-campaign-botnet.md) |
-| 2 | AI Cryptojacking Botnet | Evidenced; AI role inferred (Lumen 2026, Rubrik 2026, Akamai 2025) | [docs/02](docs/02-ai-cryptojacking-botnet.md) |
-| 3 | AI Botnet Resource-Allocation Controller | **Conceptual**, built from evidenced components | [docs/03](docs/03-ai-botnet-resource-allocation-controller.md) |
-| 4 | AI Bot Reputation-Management System | Evidenced market (Malwarebytes 2026); bot system partly conceptual | [docs/04](docs/04-ai-bot-reputation-management-system.md) |
+> A defensive research portfolio examining four botnet and online-abuse topics, separating observed reporting from inference and hypothetical scenarios.
 
-Each document has: definition, evidenced findings, architecture, execution flow, attack vectors, kill chain (ATT&CK-aligned), detection, mitigation and limitations. Labels `[EVIDENCED]`, `[INFERRED]` and `[CONCEPTUAL]` mark how strong the evidence is.
+| Deliverable | Link / status |
+|---|---|
+| Technical report | [PDF](report/technical-report.pdf) · [Markdown source](report/technical-report.md) |
+| Presentation | [PDF slides](slides/ai-botnet-research-slides.pdf) · [Editable PowerPoint](slides/ai-botnet-research-slides.pptx) |
+| Video walkthrough | Pending publication to YouTube (Unlisted), Loom, or Google Drive |
+| Public repository | [GitHub](https://github.com/hansalsavaliya200-alt/ai-botnet-research-Hansal-Savaliya2424) |
 
-## Architecture of this repository
+## Research coverage
 
+| Topic | Evidence assessment | Brief |
+|---|---|---|
+| AI Spam-Campaign Botnet | AkiraBot reporting documented; botnet framing is qualified | [Research brief](docs/01-ai-spam-campaign-botnet.md) |
+| AI Cryptojacking Botnet | Incidents documented; AI involvement is attributed as inference | [Research brief](docs/02-ai-cryptojacking-botnet.md) |
+| AI Botnet Resource-Allocation Controller | Conceptual scenario; not presented as an observed system | [Research brief](docs/03-ai-botnet-resource-allocation-controller.md) |
+| AI Bot Reputation-Management System | Fake-review market documented; full automation partly conceptual | [Research brief](docs/04-ai-bot-reputation-management-system.md) |
+
+Evidence labels used throughout:
+
+- **[EVIDENCED]** — reported by an identified public source.
+- **[INFERRED]** — an interpretation or conclusion, not an established fact.
+- **[CONCEPTUAL]** — a hypothetical variant used for defensive analysis.
+
+## Project architecture
+
+```text
+Public research and references
+              |
+              v
+  docs/ topic briefs + ethics scope
+              |
+      +-------+--------+
+      |                |
+      v                v
+report/ + slides/   detection/
+      |           YARA / Sigma / IoCs
+      |                |
+      +--------+-------+
+               v
+     scripts/ + synthetic data
+               |
+               v
+        tests/ (13 passing)
 ```
- Published reports  --->  docs/ (analysis, kill chains)  --->  report/ + slides/
-        |                         |
-        |                         +--->  detection/ (YARA, Sigma, IoCs)
-        |                                       ^
-        +--->  scripts/ (safe demos on SYNTHETIC data) --- tests/ (13 tests validate rules and scripts)
-```
 
-## What is in the repository
+## Repository map
 
-| Folder | Contents |
-|--------|----------|
-| `docs/` | One analysis per topic, scope and ethics, saved outputs in `docs/evidence/` |
-| `detection/` | 3 YARA rules, 4 Sigma documents (3 rules, 1 rule plus a correlation rule), `iocs.csv`, `iocs.md`, how each was tested |
-| `scripts/` | Four defensive demos and a synthetic data generator |
-| `tests/` | `pytest` checks that every rule compiles or parses, matches harmless positive text and ignores benign text, and that each script flags the planted pattern |
-| `data/` | Invented CSV files created by the generator (fixed seed) |
-| `report/`, `slides/` | Technical report (Markdown and PDF) and presentation |
-| `status/` | Weekly project status log |
-| `references.md` | Sources with titles, URLs, access dates and what each was used for |
+| Path | Contents |
+|---|---|
+| [`docs/`](docs/) | Four topic briefs, research scope and ethics statement, and saved demonstration outputs |
+| [`report/`](report/) | Technical report source, designed PDF, print stylesheet, and reproducible build script |
+| [`slides/`](slides/) | PDF and editable PowerPoint presentation |
+| [`detection/`](detection/) | Three YARA rules, Sigma rules, IoC register, testing notes |
+| [`scripts/`](scripts/) | Safe local analysis demonstrations and synthetic data generator |
+| [`data/`](data/) | Synthetic datasets generated for demonstrations |
+| [`tests/`](tests/) | Rule parsing/compilation checks and script behaviour tests |
+| [`references.md`](references.md) | Research sources and attribution notes |
 
-## Run it (Python 3.10 or newer)
+## Safe demonstrations
 
-```
+The scripts are defensive demonstrations and use only generated synthetic data. They do not contact targets, deploy malware, or use live samples.
+
+```powershell
 python -m venv .venv
-# Windows PowerShell: .\.venv\Scripts\Activate.ps1      macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-python scripts/make_synthetic_data.py
-python scripts/review_anomaly_detector.py       # Topic 4: flags the synthetic fake-review burst
-python scripts/miner_duty_cycle_detector.py     # Topics 2/3: flags always-on and duty-cycle miners (synthetic telemetry)
-python scripts/form_spam_similarity.py          # Topic 1: flags a form-spam campaign rotating addresses
-python scripts/ioc_scanner.py <some_text_file>  # matches published IoCs in a text file
-python -m pytest                                # expect 13 passed
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python scripts\make_synthetic_data.py
+python scripts\review_anomaly_detector.py
+python scripts\miner_duty_cycle_detector.py
+python scripts\form_spam_similarity.py
+python -m pytest
 ```
 
-`yara-python` needs a C compiler on some systems. If installing it fails, the rest still runs; the YARA tests need it.
+Expected test result: **13 passed**. YARA tests require `yara-python`, included in `requirements.txt`.
 
-## Key findings
+## Rebuild the technical report
 
-1. **AI mainly changes content and development speed, not the delivery mechanism.** AkiraBot's AI-written messages defeat text filters, but its operator still depends on proxies and CAPTCHA services, which can be detected by behaviour.
-2. **In the cryptojacking cases, AI's role is the researchers' inference.** What defenders actually see is old behaviour: exposed services, SSH brute force, miners, log wiping.
-3. **Resource allocation exists today as fixed rules** (IPv4 sharding, a 70% CPU rival killer, miner proxies). An AI controller is conceptual, so I focus on cross-host and over-time behaviour signals.
-4. **Reputation fraud is mostly human plus AI text plus residential proxies.** Behaviour signals (bursts, new accounts, similar wording) work better than trying to detect AI text.
+The designed PDF uses Pandoc and Microsoft Edge or Google Chrome in headless print mode:
 
-## Limits
+```powershell
+.\report\build-report.ps1
+```
 
-Rules and scripts are tested only on invented data and harmless text. They are teaching and hunting aids, not production detections. Topics 3 and 4 are partly conceptual and labelled as such.
+This regenerates [`report/technical-report.html`](report/technical-report.html) and [`report/technical-report.pdf`](report/technical-report.pdf) from the Markdown source and stylesheet.
 
-## AI use
+## Key defensive findings
 
-Claude and GitHub Copilot helped me research, draft and structure this work. I reviewed the content and sources and can explain it.
+1. Content generation can vary spam and review text, but does not remove observable behaviours such as submission bursts, account patterns, or repeated infrastructure.
+2. In the reviewed cryptojacking reports, claims about AI involvement are researcher inference; detections focus on host and network behaviour.
+3. An AI-based resource-allocation controller is treated as conceptual. Existing allocation mechanisms in the cited cases are not evidence of an AI controller.
+4. Layered behaviour-based controls are more durable than attempting to identify AI-written text alone.
+
+## Scope and limitations
+
+This portfolio is for defensive education. It contains no functional malware, live samples, credentials, or real victim data. Detection rules and scripts were checked with harmless text and synthetic datasets; they are examples, not production-ready controls. See [scope and ethics](docs/00-scope-and-ethics.md).
+
+## Acknowledgements
+
+AI tools assisted with research organization, drafting, and editing. Sources and outputs were reviewed by the author.
 
 ## Licence
 
-MIT.
+MIT. See [LICENSE](LICENSE).

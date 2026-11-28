@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.14" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Hansal Savaliya · Intern ID 2424" />
+  <meta name="author" content="RedKross Research Foundation · Cybersecurity Malware Research Internship" />
+  <meta name="dcterms.date" content="2026-11-28" />
+  <title>AI Botnet Threat Landscape</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    em, em em em, em em em em em {
+      font-style: italic;
+    }
+    em em, em em em em {
+      font-style: normal;
+    }
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    @media print {
+      html {
+        color-scheme: light only;
+      }
+      html, body, pre, code {
+        background-color: transparent;
+      }
+      body, a, a:visited, blockquote {
+        color: black;
+      }
+      pre, code {
+        padding: 0;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">AI Botnet Threat Landscape</h1>
+<p class="subtitle">Technical Research and Defensive Detection
+Engineering</p>
+<p class="author">Hansal Savaliya · Intern ID 2424</p>
+<p class="author">RedKross Research Foundation · Cybersecurity Malware
+Research Internship</p>
+<p class="date">28 November 2026</p>
+<div class="abstract">
+<div class="abstract-title">Abstract</div>
+A defensive analysis of four assigned topics: AI-enabled spam campaigns,
+cryptojacking botnets, conceptual resource-allocation controllers, and
+reputation manipulation. The report distinguishes public evidence from
+inference and hypothetical scenarios, and includes safe synthetic
+demonstrations, detection rules, indicators, and mitigations.
+</div>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#executive-summary" id="toc-executive-summary">Executive
+summary</a></li>
+<li><a href="#research-objectives" id="toc-research-objectives">1.
+Research objectives</a></li>
+<li><a href="#methodology" id="toc-methodology">2. Methodology</a></li>
+<li><a href="#overview-and-comparison"
+id="toc-overview-and-comparison">3. Overview and comparison</a></li>
+<li><a href="#topic-1-ai-spam-campaign-botnet"
+id="toc-topic-1-ai-spam-campaign-botnet">4. Topic 1: AI Spam-Campaign
+Botnet</a></li>
+<li><a href="#topic-2-ai-cryptojacking-botnet"
+id="toc-topic-2-ai-cryptojacking-botnet">5. Topic 2: AI Cryptojacking
+Botnet</a></li>
+<li><a href="#topic-3-ai-botnet-resource-allocation-controller"
+id="toc-topic-3-ai-botnet-resource-allocation-controller">6. Topic 3: AI
+Botnet Resource-Allocation Controller</a></li>
+<li><a href="#topic-4-ai-bot-reputation-management-system"
+id="toc-topic-4-ai-bot-reputation-management-system">7. Topic 4: AI Bot
+Reputation-Management System</a></li>
+<li><a href="#detection-engineering-summary"
+id="toc-detection-engineering-summary">8. Detection engineering
+summary</a></li>
+<li><a href="#limitations-2" id="toc-limitations-2">9.
+Limitations</a></li>
+<li><a href="#future-work" id="toc-future-work">10. Future work</a></li>
+<li><a href="#conclusions" id="toc-conclusions">11. Conclusions</a></li>
+<li><a href="#use-of-ai-tools" id="toc-use-of-ai-tools">12. Use of AI
+tools</a></li>
+<li><a href="#references" id="toc-references">13. References</a></li>
+</ul>
+</nav>
+<h2 class="unnumbered" id="executive-summary">Executive summary</h2>
+<p>This report examines four related but distinct topics: AI
+spam-campaign botnets, AI cryptojacking botnets, AI botnet
+resource-allocation controllers, and AI bot reputation-management
+systems. Public reporting provides concrete examples of AI-generated
+website spam, cryptojacking activity, and AI-assisted review fraud. By
+contrast, an AI-driven resource-allocation controller remains
+hypothetical in the sources reviewed here.</p>
+<p>The central defensive finding is that content generation is only one
+part of an operation. Operators still rely on observable infrastructure
+and behaviours: repeated submission patterns, exposed services, unusual
+compute use, suspicious egress, coordinated account activity, and abuse
+of platform workflows. Layered controls and behaviour-based detections
+are therefore more durable than attempting to identify AI-written text
+alone.</p>
+<p>The project contains <strong>four topic analyses</strong>,
+<strong>three YARA rules</strong>, <strong>four Sigma documents</strong>
+(including a correlation rule), an IoC register, safe scripts that
+operate on synthetic data, and a <strong>13-test</strong> validation
+suite. It contains no functional malware, live samples, credentials, or
+real victim data.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Research topic</th>
+<th>Evidence assessment</th>
+<th>Defensive focus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Spam-Campaign Botnet</td>
+<td>AkiraBot reporting is documented; “botnet” framing is qualified</td>
+<td>Form-abuse patterns, rate limits, semantic and behavioural
+signals</td>
+</tr>
+<tr>
+<td>AI Cryptojacking Botnet</td>
+<td>Incidents documented; the role of AI is researcher inference</td>
+<td>Host telemetry, egress, patching, and protected logging</td>
+</tr>
+<tr>
+<td>AI Botnet Resource-Allocation Controller</td>
+<td>Conceptual; no AI-driven controller verified in reviewed
+sources</td>
+<td>Cross-host correlation and workload-role changes</td>
+</tr>
+<tr>
+<td>AI Bot Reputation-Management System</td>
+<td>Fake-review market documented; end-to-end automation partly
+conceptual</td>
+<td>Review bursts, account patterns, similarity, and appeal
+safeguards</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Evidence labels:</strong> <code>[EVIDENCED]</code> means
+directly reported by a cited source; <code>[INFERRED]</code> marks an
+interpretation attributed to a researcher or this analysis;
+<code>[CONCEPTUAL]</code> marks a hypothetical variant rather than a
+confirmed incident.</p>
+<p><strong>Submission links:</strong> <a
+href="https://github.com/hansalsavaliya200-alt/ai-botnet-research-Hansal-Savaliya2424">Public
+repository</a> · Video walkthrough: pending publication.</p>
+<h2 id="research-objectives">1. Research objectives</h2>
+<ol type="1">
+<li>Document, for each of my four assigned topics, how the malware or
+abuse system works: architecture, execution flow, attack vectors and
+kill chain.</li>
+<li>Build actionable defences: indicators of compromise, YARA and Sigma
+rules, behaviour-based detections and mitigation controls.</li>
+<li>Be clear about evidence. Where no public evidence exists for a
+topic, mark the analysis as conceptual.</li>
+</ol>
+<p>The four topics are: <strong>(1) AI Spam-Campaign Botnet, (2) AI
+Cryptojacking Botnet, (3) AI Botnet Resource-Allocation Controller, (4)
+AI Bot Reputation-Management System.</strong></p>
+<h2 id="methodology">2. Methodology</h2>
+<ul>
+<li><strong>Research:</strong> I read recent public reports from
+security vendors and researchers (SentinelLABS, Lumen Black Lotus Labs,
+Rubrik Zero Labs, Akamai, Malwarebytes Labs). I used only what the
+reports state, and separated reported facts from researchers’ inferences
+and from my own reasoning.</li>
+<li><strong>Evidence labels:</strong> <code>[EVIDENCED]</code> for
+reported facts, <code>[INFERRED]</code> for inference,
+<code>[CONCEPTUAL]</code> for hypothetical variants.</li>
+<li><strong>Analysis:</strong> For each topic I wrote a definition,
+architecture, execution flow, attack vectors and an ATT&amp;CK-aligned
+kill chain.</li>
+<li><strong>Detection engineering:</strong> I wrote 3 YARA rules and 4
+Sigma documents, an IoC table, and 4 safe analysis scripts. Everything
+was tested on harmless text or <strong>synthetic data that I
+generated</strong> (<code>pytest</code>, 13 tests passing).</li>
+<li><strong>Safety:</strong> all work was offline reading and local
+scripts. No malware, samples, scanning or real data. See Section 8.</li>
+</ul>
+<h2 id="overview-and-comparison">3. Overview and comparison</h2>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Topic 1: Spam</th>
+<th>Topic 2: Cryptojacking</th>
+<th>Topic 3: Allocation controller</th>
+<th>Topic 4: Reputation system</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Real-world evidence</td>
+<td>Strong (AkiraBot)</td>
+<td>Strong; AI role inferred</td>
+<td><strong>None for an AI controller</strong>; components
+evidenced</td>
+<td>Market evidenced; bot system partly conceptual</td>
+</tr>
+<tr>
+<td>Where AI helps the attacker</td>
+<td>Unique tailored messages</td>
+<td>Faster development; targets AI infrastructure</td>
+<td>Hypothetical: adaptive job allocation</td>
+<td>Realistic review text at scale</td>
+</tr>
+<tr>
+<td>Main infrastructure</td>
+<td>Proxies, CAPTCHA solvers, LLM API</td>
+<td>Exposed services, miners, pools or proxies</td>
+<td>Telemetry, scheduler, job channel</td>
+<td>Accounts, proxies, text generator</td>
+</tr>
+<tr>
+<td>Victim</td>
+<td>Website owners</td>
+<td>Server owners</td>
+<td>Same as host botnet</td>
+<td>Businesses and consumers</td>
+</tr>
+<tr>
+<td>Best detection idea</td>
+<td>Behaviour: one fingerprint, many addresses</td>
+<td>Host and egress behaviour</td>
+<td>Cross-host and over-time patterns</td>
+<td>Burst, new accounts, similarity</td>
+</tr>
+</tbody>
+</table>
+<p>A common conclusion: <strong>AI changes content and speed, but the
+attacker still needs infrastructure and behaviour that defenders can
+observe.</strong> Detection that depends on the behaviour lasts longer
+than detection that depends on the wording of a message or a single
+domain.</p>
+<h2 id="topic-1-ai-spam-campaign-botnet">4. Topic 1: AI Spam-Campaign
+Botnet</h2>
+<p><strong>Evidence level:</strong> the central example is
+<strong>[EVIDENCED]</strong>. SentinelLABS documented <em>AkiraBot</em>
+(report of 9 April 2025) [1]. Where I generalise to a “botnet”, it is
+marked <strong>[INFERRED]</strong>.</p>
+<h3 id="definition">4.1 Definition</h3>
+<p>A spam-campaign botnet is a set of automated clients (or one
+operator’s automation running from many addresses) that sends unwanted
+messages at scale. The “AI” part is that a large language model writes
+each message, so messages differ from each other and are tailored to the
+target. This defeats filters that rely on repeated text.</p>
+<h3 id="case-study-akirabot-evidenced-sentinellabs-1">4.2 Case study:
+AkiraBot [EVIDENCED, SentinelLABS] [1]</h3>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th>Item</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What it is</td>
+<td>A Python framework that sends spam through website <strong>chat
+widgets and contact forms</strong> to promote a low-quality SEO service.
+Unrelated to the Akira ransomware group.</td>
+</tr>
+<tr>
+<td>Scale (reported)</td>
+<td>More than 400,000 websites targeted and at least 80,000 successfully
+spammed since September 2024. SentinelLABS’ own de-duplicated count of
+targeted domains is slightly higher (over 420,000), so I quote it as
+“about 400,000 or more”.</td>
+</tr>
+<tr>
+<td>Targets</td>
+<td>Started with Shopify sites, then GoDaddy, Wix, Squarespace and
+generic contact forms. Later versions target live chat widgets such as
+Reamaze.</td>
+</tr>
+<tr>
+<td>AI use</td>
+<td>Each message is generated from a template with
+<code>gpt-4o-mini</code>. The page text of the target site is scraped
+and passed in the prompt, so each message mentions the target’s own
+business.</td>
+</tr>
+<tr>
+<td>Anti-bot evasion</td>
+<td>Targets hCAPTCHA and reCAPTCHA. A Selenium-based fingerprint server
+changes browser attributes to look like a real user. Failover
+CAPTCHA-solving services are used. Residential, mobile and data-centre
+proxies are rotated.</td>
+</tr>
+<tr>
+<td>Operator tooling</td>
+<td>A GUI to pick a target list and the number of concurrent threads.
+Telegram-linked monitoring scripts. Logs suggest it ran on Windows
+Server.</td>
+</tr>
+<tr>
+<td>Disruption</td>
+<td>OpenAI disabled the API key involved after the report.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="architecture-generalised-from-the-evidenced-case-inferred">4.3
+Architecture (generalised from the evidenced case) [INFERRED]</h3>
+<pre><code> Operator GUI / config
+        |
+        v
+ Target list  ---&gt;  Scheduler (threads/concurrency)
+                         |
+          +--------------+---------------+
+          v                              v
+   Page scraper  ----&gt; LLM message generator  (API key held by operator)
+          |                              |
+          +--------------+---------------+
+                         v
+              Browser automation (headless Chrome / Selenium)
+                         |
+              Fingerprint spoofing + CAPTCHA-solver failover
+                         |
+                  Proxy rotation (residential / mobile)
+                         |
+                         v
+        Victim site contact form or chat widget
+                         |
+                         v
+        Success/failure logs (submissions, failed lists)</code></pre>
+<p>The key design idea is a <strong>pipeline</strong>: scrape, generate,
+submit, log. Each stage has a fallback, which makes the campaign
+resilient.</p>
+<h3 id="execution-flow">4.4 Execution flow</h3>
+<ol type="1">
+<li>Operator loads a list of target domains.</li>
+<li>For each target, the bot loads the page and extracts its text.</li>
+<li>The text is passed to an LLM with a marketing-message prompt. The
+reply is the unique spam text.</li>
+<li>A real browser session fills in the contact form or chat
+widget.</li>
+<li>If a CAPTCHA appears, a solving service is called; if that fails,
+another one is tried.</li>
+<li>Traffic leaves through a rotating proxy so the source address
+changes.</li>
+<li>The result is written to a success or failure list.</li>
+</ol>
+<h3 id="attack-vectors">4.5 Attack vectors</h3>
+<table>
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr>
+<th>Vector</th>
+<th>Why it works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Public contact forms and chat widgets</td>
+<td>Open by design; no account needed.</td>
+</tr>
+<tr>
+<td>Unique AI-written text</td>
+<td>No repeated string to block.</td>
+</tr>
+<tr>
+<td>Residential and mobile proxies</td>
+<td>Source addresses look like ordinary users.</td>
+</tr>
+<tr>
+<td>Browser fingerprint spoofing</td>
+<td>Simple “is this a bot” checks pass.</td>
+</tr>
+<tr>
+<td>Paid CAPTCHA solving</td>
+<td>Turns a barrier into a cost per request.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kill-chain-attck-aligned-adapted-for-a-spam-botnet">4.6 Kill
+chain (ATT&amp;CK-aligned, adapted for a spam botnet)</h3>
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 14%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Activity</th>
+<th>ATT&amp;CK reference (verify IDs on attack.mitre.org)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Resource development</td>
+<td>Register domains for the promoted brand; obtain proxy and CAPTCHA
+services; obtain an LLM API key</td>
+<td>T1583.001 (acquire domains), T1583 (acquire infrastructure),
+T1588.007 (obtain AI capability)</td>
+</tr>
+<tr>
+<td>Reconnaissance</td>
+<td>Build target list, scrape target pages</td>
+<td>T1593 (search open websites/domains)</td>
+</tr>
+<tr>
+<td>Delivery</td>
+<td>Submit AI-written message via form or chat</td>
+<td>No exact ATT&amp;CK match; closest is abuse of a public-facing
+channel</td>
+</tr>
+<tr>
+<td>Defense evasion</td>
+<td>Fingerprint spoofing, CAPTCHA solving, proxy rotation</td>
+<td>T1090 (proxy)</td>
+</tr>
+<tr>
+<td>Objective</td>
+<td>SEO promotion and lead generation; traffic to the operator’s
+brand</td>
+<td>Business objective, not a system compromise</td>
+</tr>
+</tbody>
+</table>
+<p>Note: this campaign does <strong>not</strong> compromise the victim
+website. The harm is spam volume, wasted staff time and search-quality
+damage.</p>
+<h3 id="detection">4.7 Detection</h3>
+<ul>
+<li><strong>Network/web logs:</strong> many POSTs to contact or chat
+endpoints from many different addresses that share the same browser
+fingerprint attributes, the same timing pattern or the same referrer
+path.</li>
+<li><strong>Content:</strong> AI text is varied, so use <strong>semantic
+similarity</strong> (same intent, different words) and mentions of a
+target’s own business name in unsolicited marketing, not exact
+matching.</li>
+<li><strong>Known IoCs:</strong> the rotating SEO domains in the message
+body, and the file names SentinelLABS lists (see
+<code>detection/iocs.md</code>).</li>
+<li><strong>Rules provided:</strong>
+<code>detection/sigma/web_form_spam_burst.yml</code> and the script
+<code>scripts/form_spam_similarity.py</code>.</li>
+</ul>
+<h3 id="mitigation">4.8 Mitigation</h3>
+<ul>
+<li>Rate-limit form and chat submissions per IP <strong>and</strong> per
+session, and tighten limits after a burst.</li>
+<li>Require a server-side-verified challenge, and add a hidden
+“honeypot” field that real users never fill in.</li>
+<li>Score submissions on behaviour (time to complete, keystroke or paste
+pattern) and not only on the CAPTCHA result.</li>
+<li>Block or flag links to known spam domains in messages.</li>
+<li>For a platform that sells the API, such as an LLM provider: detect
+and revoke abused keys. OpenAI did this for AkiraBot.</li>
+</ul>
+<h3 id="limitations-and-open-questions">4.9 Limitations and open
+questions</h3>
+<ul>
+<li>The case study is one operator’s tool. I call it a “botnet” in the
+sense of one operator’s distributed automation, not a network of
+infected machines.</li>
+<li>The source report does not give a dedicated defence section, so the
+mitigations above are my synthesis from standard web-abuse
+controls.</li>
+</ul>
+<h2 id="topic-2-ai-cryptojacking-botnet">5. Topic 2: AI Cryptojacking
+Botnet</h2>
+<p><strong>Evidence level:</strong> two public analyses give
+<strong>[EVIDENCED]</strong> material: Lumen Black Lotus Labs on
+<em>PoeLLM / Canto Incognito</em> (reported 7 October 2026) [2] and
+Rubrik Zero Labs on an <em>AI-architected Linux botnet</em> (3 March
+2026) [3]. In both, the role of AI is the researchers’
+<strong>[INFERRED]</strong> conclusion, not a confirmed fact. Akamai’s
+mining-botnet analysis (24 June 2025) provides context on mining
+infrastructure [4].</p>
+<h3 id="definition-1">5.1 Definition</h3>
+<p>Cryptojacking means using someone else’s computing power to mine
+cryptocurrency, usually Monero, without permission. A cryptojacking
+botnet does this across many compromised machines and sends the results
+to the operator’s wallet. “AI” here means one or both of: (a)
+AI-assisted development of the malware, and (b) targeting AI
+infrastructure, which has valuable compute.</p>
+<h3
+id="case-a-poellm-canto-incognito-evidenced-lumen-black-lotus-labs-2">5.2
+Case A: PoeLLM / Canto Incognito [EVIDENCED, Lumen Black Lotus Labs]
+[2]</h3>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th>Item</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Activity</td>
+<td>Active since April 2026. More than 3,400 victim servers identified.
+Peak in mid-June with nearly 2,200 affected servers (about 800 active a
+day). Concentrated in the US and Western Europe.</td>
+</tr>
+<tr>
+<td>Targets</td>
+<td>Exposed AI/LLM and related infrastructure, for example LiteLLM,
+Gotenberg, Gitea and Ivanti Sentry appliances, through <strong>known
+vulnerabilities</strong> in internet-facing services.</td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>Cryptominers (XMRig and Iron) connecting victims to the Kryptex
+mining service.</td>
+</tr>
+<tr>
+<td>Spread</td>
+<td>Compromised hosts act as scanners and exploit servers: they send
+HTTP POST requests to exposed ports of other targets, telling them to
+download the malware. Early signs of distributed brute-forcing of SSH
+and other logins (maturity uncertain).</td>
+</tr>
+<tr>
+<td>C2 hiding</td>
+<td>The C2 address is hidden in a <strong>poem stored in a public GitHub
+repository</strong>. The attacker changes a few words to point bots to a
+new C2. This is a “dead drop resolver” pattern.</td>
+</tr>
+<tr>
+<td>AI link</td>
+<td>Researchers believe the poem was likely written by AI, based on its
+style [INFERRED].</td>
+</tr>
+<tr>
+<td>Attribution</td>
+<td>Italian-speaking actor, moderate confidence (Lumen).</td>
+</tr>
+<tr>
+<td>Status</td>
+<td>The GitHub repository is no longer accessible. Lumen believes
+null-routing of the C2s and an abuse report may have disrupted the
+campaign.</td>
+</tr>
+</tbody>
+</table>
+<h3
+id="case-b-ai-architected-linux-botnet-evidenced-rubrik-zero-labs-3">5.3
+Case B: AI-architected Linux botnet [EVIDENCED, Rubrik Zero Labs]
+[3]</h3>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th>Item</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sample</td>
+<td>A Python-based modular worm; SHA-256
+<code>8471257186db7db30d74816409fa09a09898ee099e7e0d1ad015546975e53a8f</code>
+(as published). In the wild for at least three months.</td>
+</tr>
+<tr>
+<td>C2</td>
+<td><strong>No central C2.</strong> A peer-to-peer mesh exchanges
+encrypted JSON. A “dead man’s switch” re-downloads the payload from
+hard-coded public repositories if the mesh fails.</td>
+</tr>
+<tr>
+<td>Spread</td>
+<td>Brute-forces SSH (port 22) with 30+ common credentials and uploads
+the payload over SFTP. Targets Redis (port 6379), with a cron
+fallback.</td>
+</tr>
+<tr>
+<td>Scanning</td>
+<td>Splits the IPv4 space into <strong>shards</strong> so bots do not
+scan the same ranges, and prioritises cloud-provider ranges.</td>
+</tr>
+<tr>
+<td>Stealth</td>
+<td>An eBPF rootkit hooks <code>sys_getdents64</code> to hide files.
+Uses <code>chattr +i</code> on its files. Stops <code>rsyslog</code> and
+<code>auditd</code>, truncates logs, clears shell history.</td>
+</tr>
+<tr>
+<td>Rival killer</td>
+<td>Kills competing miners (such as Kinsing and TeamTNT) by name, by CPU
+use above 70% and by mining-pool connections. Patches the
+vulnerabilities it used to get in.</td>
+</tr>
+<tr>
+<td>AI link</td>
+<td>Comments such as a “100/100 SCORE” suggest LLM generation under a
+scoring prompt. Researchers say the code “strongly suggests” AI
+architecture [INFERRED, not confirmed].</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mining-infrastructure-evidenced-akamai-4">5.4 Mining
+infrastructure [EVIDENCED, Akamai] [4]</h3>
+<ul>
+<li>Victims run a miner that connects to a pool
+<strong>directly</strong> (the wallet is then on the victim) or through
+a <strong>mining proxy</strong>.</li>
+<li>A proxy aggregates many victims, hides the pool and wallet from
+victims and from network inspection, and submits all work under the
+attacker’s wallet. Communication uses the <strong>Stratum</strong>
+protocol.</li>
+<li>Akamai reports that one proxy produced about 3 million hashes per
+second, worth roughly US$26,000 a year. A victim’s CPU use dropped from
+100% to 0% once mining stopped.</li>
+</ul>
+<h3 id="generalised-architecture-inferred">5.5 Generalised architecture
+[INFERRED]</h3>
+<pre><code> Vulnerable internet-facing service (exposed AI/LLM tools, Redis, SSH)
+              |  initial access
+              v
+        Dropper / loader  &lt;---- payload hosting (public repos, file hosts)
+              |
+   +----------+-----------+
+   v                      v
+ Miner (XMRig-type)    Spreader (scanner + exploit/brute force)
+   |                      |
+   v                      v
+ Mining proxy -&gt; Pool    New victims (cycle repeats)
+   |
+ Stealth + persistence (rootkit, log wiping, immutable files, cron)
+   |
+ C2 location: dead-drop (poem/repo) or peer-to-peer mesh</code></pre>
+<h3 id="execution-flow-1">5.6 Execution flow</h3>
+<ol type="1">
+<li>Scan the internet for a vulnerable or weakly protected service.</li>
+<li>Gain access (known vulnerability, or default or weak
+credentials).</li>
+<li>Download the payload from a public host and run it.</li>
+<li>Remove or kill rival miners; hide files; disable logging.</li>
+<li>Start the miner, pointing at a pool or proxy.</li>
+<li>Use the new host to scan and infect more hosts.</li>
+<li>Fetch updated instructions from the dead-drop or the peer mesh.</li>
+</ol>
+<h3 id="attack-vectors-1">5.7 Attack vectors</h3>
+<table>
+<colgroup>
+<col style="width: 53%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr>
+<th>Vector</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Known vulnerabilities in exposed services</td>
+<td>Unpatched LLM gateways, Git servers, appliances.</td>
+</tr>
+<tr>
+<td>Weak SSH credentials</td>
+<td>Common-password brute force.</td>
+</tr>
+<tr>
+<td>Exposed Redis</td>
+<td>Misconfigured, unauthenticated.</td>
+</tr>
+<tr>
+<td>Public hosting for payloads and C2 hints</td>
+<td>GitHub, file-sharing sites. Hard to block outright.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kill-chain-attck-aligned-verify-ids-on-attack.mitre.org">5.8
+Kill chain (ATT&amp;CK-aligned; verify IDs on attack.mitre.org)</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 35%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Activity</th>
+<th>Technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial access</td>
+<td>Exploit vulnerable service; SSH brute force</td>
+<td>T1190; T1110</td>
+</tr>
+<tr>
+<td>Execution</td>
+<td>Run downloaded payload</td>
+<td>T1059 (command/scripting)</td>
+</tr>
+<tr>
+<td>Persistence</td>
+<td>Cron job; immutable files</td>
+<td>T1053.003; T1222.002</td>
+</tr>
+<tr>
+<td>Defense evasion</td>
+<td>Stop auditd/rsyslog; clear logs and history; hide files with a
+rootkit</td>
+<td>T1562.001; T1070.002; T1070.003; T1014</td>
+</tr>
+<tr>
+<td>Command and control</td>
+<td>Dead-drop in a public repository; P2P mesh</td>
+<td>T1102.001; T1071</td>
+</tr>
+<tr>
+<td>Lateral movement / spread</td>
+<td>SSH, exploit-and-download</td>
+<td>T1021.004; T1105</td>
+</tr>
+<tr>
+<td>Impact</td>
+<td>Mining with victim CPU</td>
+<td>T1496 (Resource Hijacking)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="detection-1">5.9 Detection</h3>
+<ul>
+<li><strong>Host:</strong> miner command lines (pool URL with
+<code>stratum</code>, <code>--donate-level</code>, algorithm names);
+sustained high CPU on servers that have no such workload; processes
+killing other miners; <code>auditd</code>/<code>rsyslog</code> stopped;
+<code>chattr +i</code> on files in temp or home directories; truncated
+<code>wtmp</code>/<code>auth.log</code>.</li>
+<li><strong>Network:</strong> connections to known mining pools or to
+Stratum-style ports; outbound connection from a server to many random
+IPs on 22 and 6379 (scanner behaviour); periodic fetches from a public
+repository by a server that never did that before.</li>
+<li><strong>Rules provided:</strong>
+<code>detection/yara/cryptominer_indicators.yar</code>,
+<code>detection/yara/linux_log_tamper_script.yar</code>,
+<code>detection/sigma/miner_commandline.yml</code>,
+<code>detection/sigma/linux_audit_logging_stopped.yml</code>,
+<code>detection/sigma/linux_chattr_immutable.yml</code>, and
+<code>scripts/miner_duty_cycle_detector.py</code>.</li>
+</ul>
+<h3 id="mitigation-1">5.10 Mitigation</h3>
+<ul>
+<li>Patch internet-facing services quickly; do not expose LLM gateways,
+Git servers or Redis to the internet without authentication and network
+limits.</li>
+<li>Disable SSH password login; use keys; limit with firewall and
+fail2ban-type controls.</li>
+<li>Egress filtering: block or alert on mining-pool traffic and on
+unexpected outbound scanning.</li>
+<li>Resource monitoring with alerts on sustained CPU use outside
+expected hours.</li>
+<li>Protect logging: forward logs off-host so truncation cannot erase
+evidence.</li>
+<li>Restrict who can load eBPF programs; monitor <code>bpf()</code>
+use.</li>
+</ul>
+<h3 id="limitations">5.11 Limitations</h3>
+<ul>
+<li>The “AI” element is inferred in both cases. The malware’s behaviour,
+not its author, is what defenders see, so the detections do not depend
+on AI.</li>
+<li>Only a few IoCs are published for PoeLLM (a repository name). I list
+what is published and no more.</li>
+</ul>
+<h2 id="topic-3-ai-botnet-resource-allocation-controller">6. Topic 3: AI
+Botnet Resource-Allocation Controller</h2>
+<p><strong>Evidence level: [CONCEPTUAL] overall.</strong> I found
+<strong>no public report of an LLM- or AI-driven controller</strong>
+that allocates a botnet’s resources. This document therefore does two
+things: (1) it collects the <strong>[EVIDENCED]</strong> building blocks
+that real botnets already have, and (2) it describes a
+<strong>[CONCEPTUAL]</strong> controller built from those blocks, so
+defenders can reason about it. Nothing here is an implementation.</p>
+<h3 id="definition-2">6.1 Definition</h3>
+<p>A resource-allocation controller is the part of a botnet that decides
+<strong>which infected machine does which job and when</strong>: mine,
+scan, send spam, host content, or stay quiet. A <em>conceptual AI</em>
+controller would make those decisions from live data (CPU headroom,
+bandwidth, time of day, detection risk, expected earnings) using an AI
+or ML policy instead of fixed rules.</p>
+<h3 id="evidenced-building-blocks">6.2 Evidenced building blocks</h3>
+<table>
+<colgroup>
+<col style="width: 44%" />
+<col style="width: 55%" />
+</colgroup>
+<thead>
+<tr>
+<th>Building block</th>
+<th>Source and finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Work sharding</td>
+<td>The Rubrik-analysed botnet splits the IPv4 space into shards so bots
+do not scan the same ranges, and prioritises cloud-provider ranges.
+<strong>[EVIDENCED]</strong> [3]</td>
+</tr>
+<tr>
+<td>Resource-based decisions</td>
+<td>The same botnet kills competing miners by name, by <strong>CPU use
+above 70%</strong> and by mining-pool connections.
+<strong>[EVIDENCED]</strong> [3]</td>
+</tr>
+<tr>
+<td>Role reuse</td>
+<td>PoeLLM’s infected hosts become scanners and exploit servers, so one
+host changes role from miner to spreader. <strong>[EVIDENCED,
+Lumen]</strong> [2]</td>
+</tr>
+<tr>
+<td>Aggregation point</td>
+<td>A mining proxy collects work from many victims and submits it under
+one wallet. This is a central allocation point. <strong>[EVIDENCED,
+Akamai]</strong> [4]</td>
+</tr>
+<tr>
+<td>Operator-set concurrency</td>
+<td>AkiraBot’s GUI lets the operator choose the target list and the
+number of concurrent threads; CAPTCHA solvers have
+<strong>failover</strong> order. <strong>[EVIDENCED,
+SentinelLABS]</strong> [1]</td>
+</tr>
+<tr>
+<td>Decentralised coordination</td>
+<td>A peer-to-peer mesh replaces a single C2 in the Rubrik case.
+<strong>[EVIDENCED]</strong> [3]</td>
+</tr>
+</tbody>
+</table>
+<p>These show that allocation decisions already exist in botnets, but
+they are <strong>fixed rules or operator settings</strong>, not learned
+policies.</p>
+<h3 id="conceptual-controller-architecture-conceptual">6.3 Conceptual
+controller architecture [CONCEPTUAL]</h3>
+<pre><code> Telemetry from bots (CPU free, bandwidth, uptime, region, detection signals)
+                         |
+                         v
+                Controller (central or peer-to-peer)
+          objective: maximise income, minimise detection
+                         |
+          +--------------+----------------+
+          v              v                v
+      Mining job      Scan/spread job   Other jobs (e.g. spam/proxy)
+          |              |                |
+          +--------------+----------------+
+                         |
+              Feedback: earnings, bans, takedowns</code></pre>
+<p>An AI policy would sit in the controller box. Its inputs would be the
+telemetry; its output would be a job per bot. It could also react to
+defender actions, for example by moving work away from hosts that have
+been flagged.</p>
+<h3 id="why-this-matters-for-defenders">6.4 Why this matters for
+defenders</h3>
+<table>
+<colgroup>
+<col style="width: 62%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Capability a controller could add</th>
+<th>Effect on defenders</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keep CPU use just under alert thresholds</td>
+<td>Threshold-only alerts miss it.</td>
+</tr>
+<tr>
+<td>Move work away from flagged hosts</td>
+<td>Blocking one host or one pool has less effect.</td>
+</tr>
+<tr>
+<td>Spread scan load across many hosts</td>
+<td>Per-host scan volume stays low.</td>
+</tr>
+<tr>
+<td>Switch pools or proxies in response to bans</td>
+<td>Pool-based blocking must be updated often.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Defensive consequence:</strong> detect <strong>patterns
+across hosts and over time</strong>, not single events.</p>
+<h3 id="observable-signals-what-a-defender-could-see">6.5 Observable
+signals (what a defender could see)</h3>
+<ul>
+<li>A host that <strong>changes role</strong> (CPU-heavy, then
+network-scan-heavy) with no change in its owner’s workload.</li>
+<li><strong>Coordinated changes</strong> across many hosts at the same
+moment (same phase shift, same start or stop time).</li>
+<li>A <strong>periodic duty cycle</strong>: mining in bursts that keep
+average CPU just below a limit. Detectable with the script
+<code>scripts/miner_duty_cycle_detector.py</code> on telemetry.</li>
+<li>Hosts that stop mining when a monitoring tool or a login appears,
+then resume (user-activity-aware throttling).</li>
+<li>Fast switching of destination pools or proxies after a block.</li>
+</ul>
+<h3
+id="kill-chain-placement-attck-aligned-verify-ids-on-attack.mitre.org">6.6
+Kill chain placement (ATT&amp;CK-aligned; verify IDs on
+attack.mitre.org)</h3>
+<p>The controller is not a separate attack stage. It operates during
+<strong>command and control</strong> and <strong>impact</strong>:</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Role of the controller</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Command and control (T1071, T1102, T1568)</td>
+<td>Delivers job assignments to bots.</td>
+</tr>
+<tr>
+<td>Defense evasion (T1497 sandbox/virtualisation and monitoring
+evasion; T1036 masquerading)</td>
+<td>Throttles activity to stay below thresholds.</td>
+</tr>
+<tr>
+<td>Impact (T1496 Resource Hijacking)</td>
+<td>Chooses where compute and bandwidth are used.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="detection-and-mitigation">6.7 Detection and mitigation</h3>
+<ul>
+<li>Model <strong>per-host baselines</strong> of CPU, network and
+process behaviour and alert on role changes and duty-cycle
+patterns.</li>
+<li><strong>Correlate</strong> across hosts: many hosts changing
+behaviour in the same minute is a stronger signal than one.</li>
+<li>Track <strong>egress destinations</strong> (pools, proxies,
+repositories) and alert on new ones from servers.</li>
+<li>Keep detections based on <strong>behaviour</strong> and not on a
+single IoC, since the controller could change infrastructure
+quickly.</li>
+<li>Reduce the attack surface that the botnet depends on: patch,
+restrict exposed services, disable weak SSH logins.</li>
+<li>Rules provided: <code>detection/sigma/miner_commandline.yml</code>
+(the evidenced miner behaviour) and the telemetry script above, which
+looks for duty cycles in <strong>synthetic</strong> data.</li>
+</ul>
+<h3 id="limitations-and-honest-scope">6.8 Limitations and honest
+scope</h3>
+<ul>
+<li>This topic is hypothetical. I do not claim such a controller exists
+in the wild.</li>
+<li>The script detects a simple pattern in synthetic data. It is a
+teaching demonstration, not a production detector.</li>
+</ul>
+<h2 id="topic-4-ai-bot-reputation-management-system">7. Topic 4: AI Bot
+Reputation-Management System</h2>
+<p><strong>Evidence level:</strong> the fake-review trade and its use of
+AI and proxies are <strong>[EVIDENCED]</strong> by Malwarebytes Labs (2
+November 2026) [5]. The idea of a fully automated <em>bot system</em>
+that runs this end to end is partly <strong>[CONCEPTUAL]</strong>: the
+source says real people post many reviews by hand, with AI used to write
+and scale text.</p>
+<h3 id="definition-3">7.1 Definition</h3>
+<p>“Reputation management” in this context means selling services that
+<strong>fake or remove online reviews and ratings</strong> so a business
+looks better (or a competitor looks worse). An <em>AI bot
+reputation-management system</em> would automate it: create accounts,
+write human-sounding reviews, post them from believable addresses and,
+in some offers, get negative reviews removed.</p>
+<h3 id="evidenced-findings-malwarebytes-labs-2-nov-2026">7.2 Evidenced
+findings [Malwarebytes Labs, 2 Nov 2026]</h3>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th>Item</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Market</td>
+<td>Sellers on cybercrime forums advertise “reputation management”:
+flooding products with five-star reviews or removing negative ones.</td>
+</tr>
+<tr>
+<td>Platforms</td>
+<td>Google, Trustpilot, Yelp, mobile app stores, Airbnb.</td>
+</tr>
+<tr>
+<td>Prices</td>
+<td>Removing a single review about $100 to $200; Airbnb review removal
+advertised around $1,100. One seller claimed more than 10,000 fake
+reviews through a “private method”.</td>
+</tr>
+<tr>
+<td>Labour</td>
+<td>Sellers say real people post the reviews manually and promise they
+will not be flagged. Some charge extra if the operator writes the
+text.</td>
+</tr>
+<tr>
+<td>AI use</td>
+<td>Criminals reportedly use AI to produce realistic reviews in volume.
+Forum users discussed imitating E-E-A-T signals; one claimed fully
+AI-generated reviews were indexed by Google.</td>
+</tr>
+<tr>
+<td>Evasion</td>
+<td>Residential and mobile proxies, so traffic looks like ordinary
+consumers.</td>
+</tr>
+<tr>
+<td>Side effect</td>
+<td>Removal services can be used to take down <strong>genuine</strong>
+complaints.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="generalised-architecture-conceptual-built-from-the-evidence">7.3
+Generalised architecture [CONCEPTUAL, built from the evidence]</h3>
+<pre><code> Customer order (target business, platform, number of reviews, star rating)
+                       |
+                       v
+         Orchestrator (plans campaign: pace, mix of ratings, accounts)
+                       |
+     +-----------------+------------------+
+     v                 v                  v
+ Account pool     Text generator      Proxy pool
+ (aged accounts)  (LLM, varied styles) (residential / mobile)
+     |                 |                  |
+     +-----------------+------------------+
+                       v
+               Posting (manual or automated)
+                       |
+                       v
+     Optional: report/flag genuine negative reviews for removal</code></pre>
+<h3 id="execution-flow-2">7.4 Execution flow</h3>
+<ol type="1">
+<li>A buyer specifies a platform, a target and a rating mix.</li>
+<li>The orchestrator plans a schedule so reviews trickle in rather than
+arriving in one burst.</li>
+<li>Accounts are chosen (new or aged) and given an address from the
+proxy pool.</li>
+<li>Review text is generated in varied voices, often mentioning
+plausible details.</li>
+<li>Reviews are posted, by people or by automation.</li>
+<li>For removal orders, genuine negative reviews are reported as
+“unfair” or abusive.</li>
+</ol>
+<h3 id="attack-vectors-2">7.5 Attack vectors</h3>
+<table>
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr>
+<th>Vector</th>
+<th>Why it works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open review systems with cheap accounts</td>
+<td>Low cost to create many identities.</td>
+</tr>
+<tr>
+<td>AI-written text</td>
+<td>No copied wording to match; mimics real style.</td>
+</tr>
+<tr>
+<td>Residential and mobile proxies</td>
+<td>Hides the data-centre origin.</td>
+</tr>
+<tr>
+<td>Abuse of reporting tools</td>
+<td>Uses the platform’s own removal process against honest
+reviewers.</td>
+</tr>
+<tr>
+<td>Human posters</td>
+<td>Real devices and real behaviour are hard to flag.</td>
+</tr>
+</tbody>
+</table>
+<h3
+id="kill-chain-attck-aligned-adapted-verify-ids-on-attack.mitre.org">7.6
+Kill chain (ATT&amp;CK-aligned, adapted; verify IDs on
+attack.mitre.org)</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 35%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Activity</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Resource development</td>
+<td>Obtain or create accounts, proxies and AI access</td>
+<td>T1585 (establish accounts), T1583 (acquire infrastructure),
+T1588.007 (obtain AI capability)</td>
+</tr>
+<tr>
+<td>Defense evasion</td>
+<td>Residential proxy routing</td>
+<td>T1090</td>
+</tr>
+<tr>
+<td>Impact</td>
+<td>Distort what the public sees: fake positive reviews, removal of real
+ones</td>
+<td>Closest match: T1565 (data manipulation); the fit is imperfect
+because this is a fraud harm and not an attack on a system</td>
+</tr>
+</tbody>
+</table>
+<h3 id="detection-2">7.7 Detection</h3>
+<p>Signals Malwarebytes lists (they are warning signs, not proof):
+repeated wording across reviews, sudden bursts of glowing feedback, and
+a business whose reviews look too good to be true.</p>
+<p>Platform-side signals that I implement in
+<code>scripts/review_anomaly_detector.py</code> on
+<strong>synthetic</strong> data:</p>
+<ul>
+<li><strong>Burst:</strong> many reviews for one business in a short
+window compared with its normal rate.</li>
+<li><strong>Text similarity:</strong> near-duplicate or templated
+wording across reviews and accounts.</li>
+<li><strong>Rating shape:</strong> an unusual share of 5-star reviews
+from new accounts.</li>
+<li><strong>Account signals:</strong> very new accounts, accounts with
+one review only.</li>
+<li><strong>Address clustering:</strong> many reviews from one network
+range (limited by residential proxies, so this is only one signal).</li>
+</ul>
+<h3 id="mitigation-2">7.8 Mitigation</h3>
+<ul>
+<li>Require purchase or booking verification for reviews where
+possible.</li>
+<li>Rate-limit and age-gate review posting; add friction for new
+accounts.</li>
+<li>Combine several weak signals into a risk score and review high
+scores by hand.</li>
+<li>Make the removal process require evidence, and audit removals of
+long-standing honest reviews.</li>
+<li>Show “verified purchase” labels and let users see review age and
+reviewer history.</li>
+<li>Educate users: read recent and middle-rated reviews, look for
+repeated details.</li>
+</ul>
+<h3 id="limitations-1">7.9 Limitations</h3>
+<ul>
+<li>Detecting AI text alone is unreliable; the detector uses behaviour
+and similarity, not “is this AI”.</li>
+<li>The script is a demonstration on invented data. Real platforms need
+much richer signals and legal and privacy review.</li>
+<li>I make no claim about any specific seller or business. I describe
+only what the cited report states.</li>
+</ul>
+<h2 id="detection-engineering-summary">8. Detection engineering
+summary</h2>
+<table>
+<colgroup>
+<col style="width: 41%" />
+<col style="width: 29%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Count</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>YARA rules</td>
+<td>3</td>
+<td>Miner text, log-tamper combination, experimental spam-tool hunt (low
+confidence)</td>
+</tr>
+<tr>
+<td>Sigma documents</td>
+<td>4</td>
+<td>Miner command line, auditd/rsyslog stop, <code>chattr +i</code>,
+form-spam rule plus correlation</td>
+</tr>
+<tr>
+<td>IoC table</td>
+<td>16 rows</td>
+<td>Each has a source and confidence; behavioural rows for Topics 3 and
+4</td>
+</tr>
+<tr>
+<td>Analysis scripts</td>
+<td>4 + generator</td>
+<td>Review anomaly, miner duty cycle, form-spam fingerprint, IoC
+scanner; all run on synthetic data</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>13</td>
+<td>All pass (<code>docs/evidence/pytest-output.txt</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Results of the demonstrations (synthetic data):</strong> the
+review detector flagged the planted burst (risk score 6, burst 31.5
+times normal, 93% new accounts) and left the normal business at 0; the
+duty-cycle detector classified the always-on miner and the 15-minute
+duty-cycle miner and left four normal hosts alone; the form-spam script
+flagged one fingerprint seen from 39 addresses in about six minutes.</p>
+<p><strong>What these results do and do not show:</strong> they show
+that the logic works on data I planted the pattern in. They do not show
+how it performs on real traffic, which has more noise.</p>
+<p><strong>Defensive recommendations (all topics):</strong> 1. Patch and
+restrict internet-facing services, including AI and LLM gateways, Git
+servers and Redis. 2. Use key-based SSH and limit login attempts;
+forward logs off the host so they cannot be wiped. 3. Apply egress
+controls and alert on mining pools and on unexpected outbound scanning.
+4. Rate-limit and add behaviour scoring to public forms and review
+systems; do not rely on a CAPTCHA alone. 5. Prefer behaviour-based and
+cross-host detections to single IoCs.</p>
+<h2 id="limitations-2">9. Limitations</h2>
+<ul>
+<li>Topics 3 and 4 are partly conceptual. I make no claim that an AI
+resource-allocation controller exists.</li>
+<li>In Topic 2 the role of AI is the researchers’ inference, not
+confirmed.</li>
+<li>IoCs are few and age quickly. I list only what the sources
+publish.</li>
+<li>The rules and scripts are teaching and hunting aids tested on
+synthetic data and harmless text.</li>
+<li>I did not analyse any malware sample myself. All technical details
+come from the cited reports.</li>
+</ul>
+<h2 id="future-work">10. Future work</h2>
+<p>Test the rules on a lab network I own with a benign miner-like
+process; add a validated eBPF-use monitor; evaluate the review detector
+on a public labelled dataset; track new reports on AI-built botnets and
+update the IoC list.</p>
+<h2 id="conclusions">11. Conclusions</h2>
+<p>AI lowers the cost of producing varied content and of writing code,
+and it is already being used in spam, cryptojacking and review fraud.
+The reported cases still rely on exposed services, proxies and accounts,
+which leave behaviour that defenders can detect. The strongest defences
+are patching, egress control, behaviour scoring and layered detection,
+not trying to recognise AI-written text.</p>
+<h2 id="use-of-ai-tools">12. Use of AI tools</h2>
+<p>Claude and GitHub Copilot helped me research, draft and structure
+this work. I reviewed the content and the sources and can explain
+it.</p>
+<h2 id="references">13. References</h2>
+<h3 id="primary-research">Primary research</h3>
+<ol type="1">
+<li>SentinelLABS. <a
+href="https://www.sentinelone.com/de/labs/akirabot-ai-powered-bot-bypasses-captchas-spams-websites-at-scale/"><em>AkiraBot:
+AI-Powered Bot Bypasses CAPTCHAs, Spams Websites At Scale</em></a>. 9
+April 2025.</li>
+<li>The Hacker News (Ravie Lakshmanan), reporting on Lumen Black Lotus
+Labs. <a
+href="https://thehackernews.com/2026/10/poellm-malware-infects-3400-servers-to.html">PoeLLM
+malware coverage</a>. 7 October 2026.</li>
+<li>Rubrik Zero Labs. <a
+href="https://zerolabs.rubrik.com/blog/prompt-pwn-analyzing-ai-architected-botnet"><em>Prompt-to-Pwn:
+analyzing an AI-architected botnet</em></a>. 3 March 2026.</li>
+<li>Akamai Security Research. <a
+href="https://www.akamai.com/blog/security-research/cryptominers-anatomy-shutting-down-mining-botnets"><em>Cryptominers’
+Anatomy: Shutting Down Mining Botnets</em></a>. 24 June 2025.</li>
+<li>Malwarebytes Labs. <a
+href="https://www.malwarebytes.com/blog/news/2026/11/5-stars-for-sale-inside-the-underground-fake-review-trade"><em>5
+stars for sale: Inside the underground fake review trade</em></a>. 2
+November 2026.</li>
+</ol>
+<h3 id="framework-and-detection-rule-documentation">Framework and
+detection-rule documentation</h3>
+<ol start="6" type="1">
+<li>MITRE. <a href="https://attack.mitre.org/">ATT&amp;CK knowledge
+base</a>.</li>
+<li>YARA. <a href="https://yara.readthedocs.io/">Documentation</a>.</li>
+<li>Sigma. <a href="https://sigmahq.io/docs/">Rule specification and
+correlation rules</a>.</li>
+</ol>
+<p>For source-access notes, secondary reading, and a summary of how each
+source was used, see <a
+href="../references.md"><code>references.md</code></a>. Access dates and
+evidence limitations are documented there.</p>
+</body>
+</html>

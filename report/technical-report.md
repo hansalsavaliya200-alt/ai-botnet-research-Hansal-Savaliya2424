@@ -1,10 +1,31 @@
-# AI-Assisted Botnets: Technical Analysis and Detection Engineering
+---
+title: "AI Botnet Threat Landscape"
+subtitle: "Technical Research and Defensive Detection Engineering"
+author:
+  - "Hansal Savaliya · Intern ID 2424"
+  - "RedKross Research Foundation · Cybersecurity Malware Research Internship"
+date: "28 November 2026"
+abstract: "A defensive analysis of four assigned topics: AI-enabled spam campaigns, cryptojacking botnets, conceptual resource-allocation controllers, and reputation manipulation. The report distinguishes public evidence from inference and hypothetical scenarios, and includes safe synthetic demonstrations, detection rules, indicators, and mitigations."
+---
 
-**Name:** Hansal Savaliya  **Intern ID:** 2424
-**Programme:** RedKross Research Foundation, Milestone Task 3: Malware Research
-**Date:** November 2026
-**Repository:** Public GitHub repository URL to be recorded after publication
-**Video:** 3–5 minute technical walkthrough URL to be recorded after publication
+## Executive summary {.unnumbered}
+
+This report examines four related but distinct topics: AI spam-campaign botnets, AI cryptojacking botnets, AI botnet resource-allocation controllers, and AI bot reputation-management systems. Public reporting provides concrete examples of AI-generated website spam, cryptojacking activity, and AI-assisted review fraud. By contrast, an AI-driven resource-allocation controller remains hypothetical in the sources reviewed here.
+
+The central defensive finding is that content generation is only one part of an operation. Operators still rely on observable infrastructure and behaviours: repeated submission patterns, exposed services, unusual compute use, suspicious egress, coordinated account activity, and abuse of platform workflows. Layered controls and behaviour-based detections are therefore more durable than attempting to identify AI-written text alone.
+
+The project contains **four topic analyses**, **three YARA rules**, **four Sigma documents** (including a correlation rule), an IoC register, safe scripts that operate on synthetic data, and a **13-test** validation suite. It contains no functional malware, live samples, credentials, or real victim data.
+
+| Research topic | Evidence assessment | Defensive focus |
+|---|---|---|
+| AI Spam-Campaign Botnet | AkiraBot reporting is documented; “botnet” framing is qualified | Form-abuse patterns, rate limits, semantic and behavioural signals |
+| AI Cryptojacking Botnet | Incidents documented; the role of AI is researcher inference | Host telemetry, egress, patching, and protected logging |
+| AI Botnet Resource-Allocation Controller | Conceptual; no AI-driven controller verified in reviewed sources | Cross-host correlation and workload-role changes |
+| AI Bot Reputation-Management System | Fake-review market documented; end-to-end automation partly conceptual | Review bursts, account patterns, similarity, and appeal safeguards |
+
+**Evidence labels:** `[EVIDENCED]` means directly reported by a cited source; `[INFERRED]` marks an interpretation attributed to a researcher or this analysis; `[CONCEPTUAL]` marks a hypothetical variant rather than a confirmed incident.
+
+**Submission links:** [Public repository](https://github.com/hansalsavaliya200-alt/ai-botnet-research-Hansal-Savaliya2424) · Video walkthrough: pending publication.
 
 ## 1. Research objectives
 
@@ -36,13 +57,13 @@ A common conclusion: **AI changes content and speed, but the attacker still need
 
 ## 4. Topic 1: AI Spam-Campaign Botnet
 
-**Evidence level:** the central example is **[EVIDENCED]**. SentinelLABS documented *AkiraBot* (report of 9 April 2025). Where I generalise to a "botnet", it is marked **[INFERRED]**.
+**Evidence level:** the central example is **[EVIDENCED]**. SentinelLABS documented *AkiraBot* (report of 9 April 2025) [1]. Where I generalise to a "botnet", it is marked **[INFERRED]**.
 
 ### 4.1 Definition
 
 A spam-campaign botnet is a set of automated clients (or one operator's automation running from many addresses) that sends unwanted messages at scale. The "AI" part is that a large language model writes each message, so messages differ from each other and are tailored to the target. This defeats filters that rely on repeated text.
 
-### 4.2 Case study: AkiraBot [EVIDENCED, SentinelLABS]
+### 4.2 Case study: AkiraBot [EVIDENCED, SentinelLABS] [1]
 
 | Item | Finding |
 |------|---------|
@@ -137,13 +158,13 @@ Note: this campaign does **not** compromise the victim website. The harm is spam
 
 ## 5. Topic 2: AI Cryptojacking Botnet
 
-**Evidence level:** two recent public analyses give **[EVIDENCED]** material: Lumen Black Lotus Labs on *PoeLLM / Canto Incognito* (reported 7 October 2026) and Rubrik Zero Labs on an *AI-architected Linux botnet* (3 March 2026). In both, the role of AI is the researchers' **[INFERRED]** conclusion, not a confirmed fact. Akamai's mining-botnet anatomy (24 June 2025) explains the mining infrastructure.
+**Evidence level:** two public analyses give **[EVIDENCED]** material: Lumen Black Lotus Labs on *PoeLLM / Canto Incognito* (reported 7 October 2026) [2] and Rubrik Zero Labs on an *AI-architected Linux botnet* (3 March 2026) [3]. In both, the role of AI is the researchers' **[INFERRED]** conclusion, not a confirmed fact. Akamai's mining-botnet analysis (24 June 2025) provides context on mining infrastructure [4].
 
 ### 5.1 Definition
 
 Cryptojacking means using someone else's computing power to mine cryptocurrency, usually Monero, without permission. A cryptojacking botnet does this across many compromised machines and sends the results to the operator's wallet. "AI" here means one or both of: (a) AI-assisted development of the malware, and (b) targeting AI infrastructure, which has valuable compute.
 
-### 5.2 Case A: PoeLLM / Canto Incognito [EVIDENCED, Lumen Black Lotus Labs]
+### 5.2 Case A: PoeLLM / Canto Incognito [EVIDENCED, Lumen Black Lotus Labs] [2]
 
 | Item | Finding |
 |------|---------|
@@ -156,7 +177,7 @@ Cryptojacking means using someone else's computing power to mine cryptocurrency,
 | Attribution | Italian-speaking actor, moderate confidence (Lumen). |
 | Status | The GitHub repository is no longer accessible. Lumen believes null-routing of the C2s and an abuse report may have disrupted the campaign. |
 
-### 5.3 Case B: AI-architected Linux botnet [EVIDENCED, Rubrik Zero Labs]
+### 5.3 Case B: AI-architected Linux botnet [EVIDENCED, Rubrik Zero Labs] [3]
 
 | Item | Finding |
 |------|---------|
@@ -168,7 +189,7 @@ Cryptojacking means using someone else's computing power to mine cryptocurrency,
 | Rival killer | Kills competing miners (such as Kinsing and TeamTNT) by name, by CPU use above 70% and by mining-pool connections. Patches the vulnerabilities it used to get in. |
 | AI link | Comments such as a "100/100 SCORE" suggest LLM generation under a scoring prompt. Researchers say the code "strongly suggests" AI architecture [INFERRED, not confirmed]. |
 
-### 5.4 Mining infrastructure [EVIDENCED, Akamai]
+### 5.4 Mining infrastructure [EVIDENCED, Akamai] [4]
 
 - Victims run a miner that connects to a pool **directly** (the wallet is then on the victim) or through a **mining proxy**.
 - A proxy aggregates many victims, hides the pool and wallet from victims and from network inspection, and submits all work under the attacker's wallet. Communication uses the **Stratum** protocol.
@@ -257,12 +278,12 @@ A resource-allocation controller is the part of a botnet that decides **which in
 
 | Building block | Source and finding |
 |----------------|--------------------|
-| Work sharding | The Rubrik-analysed botnet splits the IPv4 space into shards so bots do not scan the same ranges, and prioritises cloud-provider ranges. **[EVIDENCED]** |
-| Resource-based decisions | The same botnet kills competing miners by name, by **CPU use above 70%** and by mining-pool connections. **[EVIDENCED]** |
-| Role reuse | PoeLLM's infected hosts become scanners and exploit servers, so one host changes role from miner to spreader. **[EVIDENCED, Lumen]** |
-| Aggregation point | A mining proxy collects work from many victims and submits it under one wallet. This is a central allocation point. **[EVIDENCED, Akamai]** |
-| Operator-set concurrency | AkiraBot's GUI lets the operator choose the target list and the number of concurrent threads; CAPTCHA solvers have **failover** order. **[EVIDENCED, SentinelLABS]** |
-| Decentralised coordination | A peer-to-peer mesh replaces a single C2 in the Rubrik case. **[EVIDENCED]** |
+| Work sharding | The Rubrik-analysed botnet splits the IPv4 space into shards so bots do not scan the same ranges, and prioritises cloud-provider ranges. **[EVIDENCED]** [3] |
+| Resource-based decisions | The same botnet kills competing miners by name, by **CPU use above 70%** and by mining-pool connections. **[EVIDENCED]** [3] |
+| Role reuse | PoeLLM's infected hosts become scanners and exploit servers, so one host changes role from miner to spreader. **[EVIDENCED, Lumen]** [2] |
+| Aggregation point | A mining proxy collects work from many victims and submits it under one wallet. This is a central allocation point. **[EVIDENCED, Akamai]** [4] |
+| Operator-set concurrency | AkiraBot's GUI lets the operator choose the target list and the number of concurrent threads; CAPTCHA solvers have **failover** order. **[EVIDENCED, SentinelLABS]** [1] |
+| Decentralised coordination | A peer-to-peer mesh replaces a single C2 in the Rubrik case. **[EVIDENCED]** [3] |
 
 These show that allocation decisions already exist in botnets, but they are **fixed rules or operator settings**, not learned policies.
 
@@ -331,7 +352,7 @@ The controller is not a separate attack stage. It operates during **command and 
 
 ## 7. Topic 4: AI Bot Reputation-Management System
 
-**Evidence level:** the fake-review trade and its use of AI and proxies are **[EVIDENCED]** by Malwarebytes Labs (2 November 2026). The idea of a fully automated *bot system* that runs this end to end is partly **[CONCEPTUAL]**: the source says real people post many reviews by hand, with AI used to write and scale text.
+**Evidence level:** the fake-review trade and its use of AI and proxies are **[EVIDENCED]** by Malwarebytes Labs (2 November 2026) [5]. The idea of a fully automated *bot system* that runs this end to end is partly **[CONCEPTUAL]**: the source says real people post many reviews by hand, with AI used to write and scale text.
 
 ### 7.1 Definition
 
@@ -467,4 +488,18 @@ Claude and GitHub Copilot helped me research, draft and structure this work. I r
 
 ## 13. References
 
-See `references.md` in the repository for the full list with URLs, access dates and what each source was used for. Primary sources: SentinelLABS (AkiraBot, 9 Apr 2025); Lumen Black Lotus Labs via The Hacker News (PoeLLM, 7 Oct 2026); Rubrik Zero Labs (AI-architected botnet, 3 Mar 2026); Akamai (Cryptominers' Anatomy, 24 Jun 2025); Malwarebytes Labs (fake review trade, 2 Nov 2026).
+### Primary research
+
+1. SentinelLABS. [*AkiraBot: AI-Powered Bot Bypasses CAPTCHAs, Spams Websites At Scale*](https://www.sentinelone.com/de/labs/akirabot-ai-powered-bot-bypasses-captchas-spams-websites-at-scale/). 9 April 2025.
+2. The Hacker News (Ravie Lakshmanan), reporting on Lumen Black Lotus Labs. [PoeLLM malware coverage](https://thehackernews.com/2026/10/poellm-malware-infects-3400-servers-to.html). 7 October 2026.
+3. Rubrik Zero Labs. [*Prompt-to-Pwn: analyzing an AI-architected botnet*](https://zerolabs.rubrik.com/blog/prompt-pwn-analyzing-ai-architected-botnet). 3 March 2026.
+4. Akamai Security Research. [*Cryptominers' Anatomy: Shutting Down Mining Botnets*](https://www.akamai.com/blog/security-research/cryptominers-anatomy-shutting-down-mining-botnets). 24 June 2025.
+5. Malwarebytes Labs. [*5 stars for sale: Inside the underground fake review trade*](https://www.malwarebytes.com/blog/news/2026/11/5-stars-for-sale-inside-the-underground-fake-review-trade). 2 November 2026.
+
+### Framework and detection-rule documentation
+
+6. MITRE. [ATT&CK knowledge base](https://attack.mitre.org/).
+7. YARA. [Documentation](https://yara.readthedocs.io/).
+8. Sigma. [Rule specification and correlation rules](https://sigmahq.io/docs/).
+
+For source-access notes, secondary reading, and a summary of how each source was used, see [`references.md`](../references.md). Access dates and evidence limitations are documented there.
